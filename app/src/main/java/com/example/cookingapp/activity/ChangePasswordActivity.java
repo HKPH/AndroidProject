@@ -13,6 +13,8 @@ import com.example.cookingapp.utils.DialogUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+
+
 public class ChangePasswordActivity extends AppCompatActivity {
 
     private EditText editTextOldPassword;
@@ -20,6 +22,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText editTextConfirmPassword;
     private Button buttonChangePassword;
     private FirebaseAuth mAuth;
+
+    private static final String ERROR_EMPTY_FIELDS = "Vui lòng nhập đầy đủ thông tin";
+    private static final String ERROR_PASSWORD_MISMATCH = "Mật khẩu xác nhận không khớp";
+    private static final String SUCCESS_PASSWORD_CHANGED = "Mật khẩu đã được thay đổi";
+    private static final String ERROR_PASSWORD_CHANGE_FAILED = "Thay đổi mật khẩu thất bại";
+    private static final String ERROR_USER_NOT_FOUND = "Không tìm thấy người dùng hiện tại";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,12 +57,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
         String confirmPassword = editTextConfirmPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(oldPassword) || TextUtils.isEmpty(newPassword) || TextUtils.isEmpty(confirmPassword)) {
-            DialogUtils.showErrorToast(this, "Vui lòng nhập đầy đủ thông tin");
+            DialogUtils.showErrorToast(this, ERROR_EMPTY_FIELDS);
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            DialogUtils.showErrorToast(this, "Mật khẩu xác nhận không khớp");
+            DialogUtils.showErrorToast(this, ERROR_PASSWORD_MISMATCH);
             return;
         }
 
@@ -63,13 +71,20 @@ public class ChangePasswordActivity extends AppCompatActivity {
             user.updatePassword(newPassword)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            DialogUtils.showSuccessToast(this, "Mật khẩu đã được thay đổi");
+                            DialogUtils.showSuccessToast(this, SUCCESS_PASSWORD_CHANGED);
+                            clearEditTextFields();
                         } else {
-                            DialogUtils.showErrorToast(this, "Thay đổi mật khẩu thất bại");
+                            DialogUtils.showErrorToast(this, ERROR_PASSWORD_CHANGE_FAILED);
                         }
-                    });
+                    }).addOnFailureListener(e -> DialogUtils.showErrorToast(this, e.getMessage()));
         } else {
-            DialogUtils.showErrorToast(this, "Không tìm thấy người dùng hiện tại");
+            DialogUtils.showErrorToast(this, ERROR_USER_NOT_FOUND);
         }
+    }
+
+    private void clearEditTextFields() {
+        editTextOldPassword.setText("");
+        editTextNewPassword.setText("");
+        editTextConfirmPassword.setText("");
     }
 }

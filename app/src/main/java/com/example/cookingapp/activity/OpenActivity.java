@@ -22,44 +22,39 @@ public class OpenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_open);
 
         Bundle extras = getIntent().getExtras();
-        String data = (extras != null) ? extras.getString("dataSend") : null;
-        checkUserLoginStatus(data);
+        String recipeId = (extras != null) ? extras.getString("dataSend") : null;
+        checkUserLoginStatus(recipeId);
     }
 
-
-    private void checkUserLoginStatus(String data) {
+    private void checkUserLoginStatus(String recipeId) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        Log.d("Đã duyệt người dùng","ok");
         if (user == null) {
-            // Người dùng chưa đăng nhập, chuyển hướng tới màn hình đăng nhập
+            // User not logged in, redirect to login screen
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
         } else {
             getFCMToken();
-            DialogUtils.showInfoToast(this,data);
-            if (data==null||data.equals("admin")) {
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                finish();
+            if (recipeId == null || recipeId.equals("admin")) {
+                startActivity(new Intent(this, MainActivity.class));
             } else {
                 Intent intent = new Intent(this, RecipeDetailActivity.class);
-                intent.putExtra("recipeId", data);
+                intent.putExtra("recipeId", recipeId);
                 startActivity(intent);
-                finish();
             }
-
+            finish();
         }
-
     }
-    void getFCMToken(){
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                String uid=user.getUid();
-                String token = task.getResult();
-                FirebaseFirestore.getInstance().collection("users").document(uid).update("fcmToken",token);
 
+    private void getFCMToken() {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    String uid = user.getUid();
+                    String token = task.getResult();
+                    FirebaseFirestore.getInstance().collection("users").document(uid).update("fcmToken", token);
+                }
             }
         });
     }

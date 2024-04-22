@@ -211,7 +211,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/shae_comment_background"
-                        android:fontFamily="@font/jost_regular"
                         android:hint="Đánh giá của bạn"
                         android:importantForAutofill="no"
                         android:layout_marginEnd="55dp"
