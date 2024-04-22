@@ -172,12 +172,12 @@ public class UpdateProfileActivity extends AppCompatActivity {
                                     DialogUtils.showSuccessToast(this, "Tải ảnh lên thành công");
                                 })
                                 .addOnFailureListener(e -> {
-                                    DialogUtils.showErrorToast(this, "Lỗi khi lưu ảnh vào Firestore");
+                                    DialogUtils.showErrorToast(this, "Lỗi khi tải ảnh lên");
                                 });
                     });
                 })
                 .addOnFailureListener(e -> {
-                    DialogUtils.showErrorToast(this, "Lỗi khi tải ảnh lên Firebase Storage");
+                    DialogUtils.showErrorToast(this, "Lỗi khi tải ảnh lên");
                 });
     }
 }

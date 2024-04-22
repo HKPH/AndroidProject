@@ -67,7 +67,7 @@ public class RecipeCreatorListFragment extends Fragment {
 
         adapter.setOnItemClickListener(position -> {
             Recipe selectedRecipe = recipes.get(position);
-            Log.d("RecipeCreatorListFragment", "Clicked on recipe: " + selectedRecipe.getTitle());
+//            Log.d("RecipeCreatorListFragment", "Clicked on recipe: " + selectedRecipe.getTitle());
             Intent intent = new Intent(getActivity(), RecipeUpdateActivity.class);
             intent.putExtra("recipe", selectedRecipe);
             startActivity(intent);
@@ -110,8 +110,7 @@ public class RecipeCreatorListFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
-                    DialogUtils.showErrorToast(getActivity(), "Failed to load recipes.");
-                    Log.e("RecipeCreatorListFragment", "Failed to load recipes", e);
+                    DialogUtils.showErrorToast(getActivity(), "Không thể tải danh sách");
                 });
     }
 }

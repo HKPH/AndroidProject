@@ -10,7 +10,6 @@ import android.widget.SearchView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cookingapp.R;
@@ -37,29 +36,33 @@ public class RecipeListFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_recipe_list, container, false);
 
-        recyclerView = view.findViewById(R.id.recyclerView);
-        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
-        recyclerView.setLayoutManager(layoutManager);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recipes = new ArrayList<>();
-        adapter = new RecipeAdapter(getContext(), recipes);
-        recyclerView.setAdapter(adapter);
+        initializeViews(view);
+        setupRecyclerView();
+        setupSearchView(view);
+        loadRecipesFromFirestore();
+        setOnRecipeItemClickListener();
 
+        return view;
+    }
+
+    private void initializeViews(View view) {
+        recyclerView = view.findViewById(R.id.recyclerView);
         FloatingActionButton btAddRecipe = view.findViewById(R.id.btAddRecipe);
         btAddRecipe.setVisibility(View.GONE);
+    }
 
-        db = FirebaseFirestore.getInstance();
+    private void setupRecyclerView() {
+        recipes = new ArrayList<>();
+        adapter = new RecipeAdapter(getContext(), recipes);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        recyclerView.setAdapter(adapter);
+    }
 
+    private void setupSearchView(View view) {
         SearchView searchView = view.findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -69,20 +72,14 @@ public class RecipeListFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Filter the recipe list by title
                 filter(newText);
                 return true;
             }
         });
-
-        // Query recipes from Firestore
-        loadRecipesFromFirestore();
-        setOnRecipeItemClickListener();
-
-        return view;
     }
 
     private void loadRecipesFromFirestore() {
+        db = FirebaseFirestore.getInstance();
         db.collection("recipes")
                 .whereEqualTo("approve", true)
                 .get()
@@ -94,13 +91,13 @@ public class RecipeListFragment extends Fragment {
                     }
                     adapter.notifyDataSetChanged();
                 })
-                .addOnFailureListener(e -> DialogUtils.showErrorToast(requireContext(), "Error loading recipes"));
+                .addOnFailureListener(e -> DialogUtils.showErrorToast(requireContext(), "Tải danh sách thất bại"));
     }
 
     private void setOnRecipeItemClickListener() {
         adapter.setOnItemClickListener(position -> {
             Recipe selectedRecipe = recipes.get(position);
-            Log.d("RecipeListFragment", "Clicked on recipe: " + selectedRecipe.getTitle());
+//            Log.d("RecipeListFragment", "Clicked on recipe: " + selectedRecipe.getTitle());
             Intent intent = new Intent(requireContext(), RecipeDetailActivity.class);
             intent.putExtra("recipeId", selectedRecipe.getId());
             startActivity(intent);

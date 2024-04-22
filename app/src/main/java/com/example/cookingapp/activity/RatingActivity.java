@@ -58,13 +58,12 @@ public class RatingActivity extends AppCompatActivity {
                             showNoRatingsMessage();
                         }
                     } else {
-                        Log.e("Error", "Error getting ratings: ", task.getException());
                         DialogUtils.showErrorToast(RatingActivity.this, "Error getting ratings");
                     }
                 });
     }
 
     private void showNoRatingsMessage() {
-        textHeader.setText(NO_RATINGS_MESSAGE);
+        textHeader.setText("Chưa có đánh giá");
     }
 }

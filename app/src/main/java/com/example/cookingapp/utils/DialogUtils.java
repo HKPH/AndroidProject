@@ -27,13 +27,12 @@ public class DialogUtils {
     private static void showToast(Context context, String message, int iconResId, int iconColor, int gravity) {
         Toast toast = new Toast(context);
         toast.setDuration(Toast.LENGTH_SHORT);
-        toast.setGravity(gravity, 0, 100); // Thiết lập vị trí ở phía dưới màn hình
+        toast.setGravity(gravity, 0, 100);
 
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         layout.setGravity(Gravity.CENTER_VERTICAL);
 
-        // Thêm hình ảnh vào toast nếu có
         if (iconResId != 0) {
             ImageView iconView = new ImageView(context);
             iconView.setImageResource(iconResId);
@@ -42,17 +41,12 @@ public class DialogUtils {
             layout.addView(iconView);
         }
 
-        // Thêm text vào toast
         TextView textView = new TextView(context);
         textView.setText(message);
         textView.setTextColor(Color.BLACK);
         textView.setGravity(Gravity.CENTER_VERTICAL);
         layout.addView(textView);
-
-        // Đặt layout cho toast
         toast.setView(layout);
-
-        // Hiển thị toast
         toast.show();
     }
 }

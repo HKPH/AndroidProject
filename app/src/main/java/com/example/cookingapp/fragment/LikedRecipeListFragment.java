@@ -75,7 +75,7 @@ public class LikedRecipeListFragment extends Fragment {
 
     private void loadLikedRecipes() {
         if (currentUser == null) {
-            Log.e("LikedRecipeListFragment", "Current user is null");
+//            Log.e("LikedRecipeListFragment", "Current user is null");
             return;
         }
 
@@ -93,14 +93,10 @@ public class LikedRecipeListFragment extends Fragment {
                     if (!recipeIds.isEmpty()) {
                         loadRecipes(recipeIds);
                     } else {
-                        Log.e("LikedRecipeListFragment", "RecipeIds list is empty");
-                        // Xử lý khi danh sách recipeIds trống
-                        // Ví dụ: hiển thị thông báo cho người dùng
                     }
                 })
                 .addOnFailureListener(e -> {
                     DialogUtils.showErrorToast(getActivity(), "Không thể tải danh sách công thức yêu thích");
-                    Log.e("LikedRecipeListFragment", "Failed to load liked recipes", e);
                 });
     }
 
@@ -118,7 +114,6 @@ public class LikedRecipeListFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     DialogUtils.showErrorToast(getActivity(), "Không thể tải danh sách công thức yêu thích");
-                    Log.e("LikedRecipeListFragment", "Failed to load recipes", e);
                 });
     }
 }

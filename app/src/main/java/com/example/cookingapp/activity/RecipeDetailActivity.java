@@ -133,10 +133,10 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        // If user hasn't liked the recipe, add like
+                        DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Thích");
                         addLike(userId);
                     } else {
-                        // If user has liked the recipe, remove like
+                        DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Bỏ thích");
                         removeLike(queryDocumentSnapshots);
                     }
                 })
@@ -153,14 +153,14 @@ public class RecipeDetailActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String message) {
                 likeButton.setImageResource(R.drawable.baseline_favorite_24);
-                DialogUtils.showSuccessToast(RecipeDetailActivity.this, message);
+//                DialogUtils.showSuccessToast(RecipeDetailActivity.this, message);
                 // Notify recipe owner
-                NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this, recipeId, "Your recipe has received a new like!");
+                NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this, recipeId, "Có người đã thích công thức của bạn!");
             }
 
             @Override
             public void onError(String error) {
-                DialogUtils.showErrorToast(RecipeDetailActivity.this, error);
+//                DialogUtils.showErrorToast(RecipeDetailActivity.this, error);
             }
         });
     }
@@ -172,7 +172,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     .delete()
                     .addOnSuccessListener(aVoid -> {
                         likeButton.setImageResource(R.drawable.baseline_favorite_border_24);
-                        DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Removed like");
+//                        DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Removed like");
                     })
                     .addOnFailureListener(e -> {
                         // Handle failure
@@ -199,11 +199,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     if (queryDocumentSnapshots.isEmpty()) {
                         saveRatingToFirestore();
                     } else {
-                        DialogUtils.showInfoToast(RecipeDetailActivity.this, "You have already reviewed this recipe");
+                        DialogUtils.showInfoToast(RecipeDetailActivity.this, "Bạn đã có đánh giá");
                     }
                 })
                 .addOnFailureListener(e -> {
-                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Failed to check review status");
+//                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Failed to check review status");
                 });
     }
 
@@ -211,8 +211,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         db.collection("ratings")
                 .add(rating)
                 .addOnSuccessListener(documentReference -> {
-                    DialogUtils.showInfoToast(RecipeDetailActivity.this, "Review submitted successfully");
-                    NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this, recipeId, "Your recipe has received a new review!");
+                    DialogUtils.showInfoToast(RecipeDetailActivity.this, "Đánh giá thành công");
+                    NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this, recipeId, "Công thức của bạn nhận được 1 đánh giá");
                 })
                 .addOnFailureListener(e -> {
                     DialogUtils.showErrorToast(RecipeDetailActivity.this, "Failed to submit review");
@@ -225,7 +225,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
             startActivity(intent);
         } else {
-            DialogUtils.showErrorToast(RecipeDetailActivity.this, "Video URL not available");
+            DialogUtils.showErrorToast(RecipeDetailActivity.this, "Video không khả dụng");
         }
     }
 
@@ -248,12 +248,10 @@ public class RecipeDetailActivity extends AppCompatActivity {
                             checkRecipeApproval();
                         }
                     }
-                    // Mặc định là false nếu không tìm thấy thông tin về quản trị viên
-                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Người dùng không phải quản trị viên");
+//                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Người dùng không phải quản trị viên");
                 })
                 .addOnFailureListener(e -> {
-                    // Xử lý lỗi
-                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Có lỗi xảy ra");
+//                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Có lỗi xảy ra");
                 });
     }
     private void checkRecipeApproval() {
@@ -268,45 +266,46 @@ public class RecipeDetailActivity extends AppCompatActivity {
                         buttonDelete.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Recipe not found");
+//                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Recipe not found");
                 }
             }
 
             @Override
             public void onError(String error) {
-                DialogUtils.showErrorToast(RecipeDetailActivity.this, error);
+//                DialogUtils.showErrorToast(RecipeDetailActivity.this, error);
             }
         });
     }
 
 
     private void approveRecipe() {
+        NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this,recipeId, "Công thức của bạn đã được duyệt");
         // Update "approved" field of recipe to true
         db.collection("recipes").document(recipeId)
                 .update("approve", true)
                 .addOnSuccessListener(aVoid -> {
-                    DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Recipe approved successfully");
+                    DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Công thức đã được thêm");
                     // Cập nhật giao diện
                     buttonAdd.setVisibility(View.INVISIBLE);
                     buttonDelete.setVisibility(View.INVISIBLE);
                 })
                 .addOnFailureListener(e -> {
-                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Failed to approve recipe");
+                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Công thức chưa được thêm");
                 });
     }
 
     private void deleteRecipe() {
-        NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this,recipeId, "Your recipe has been deleted");
+        NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this,recipeId, "Công thức của bạn đã bị từ chối");
         // Xóa recipe khỏi Firestore
         db.collection("recipes").document(recipeId)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
-                    DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Recipe deleted successfully");
+                    DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Đã xóa công thức");
                     // Finish activity
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Failed to delete recipe");
+                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Chưa xóa công thức");
                 });
     }
 

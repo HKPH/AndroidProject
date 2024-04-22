@@ -25,28 +25,23 @@ import okhttp3.Response;
 
 public class NotificationUtil {
 
-    // Lấy ID của người dùng hiện tại
     public static String getCurrentUserId() {
         return FirebaseAuth.getInstance().getUid();
     }
 
-    // Lấy tham chiếu đến tài liệu của người dùng hiện tại
     public static DocumentReference getCurrentUserDetails() {
         return FirebaseFirestore.getInstance().collection("users").document(getCurrentUserId());
     }
 
     public static void notifyRecipeOwner(AppCompatActivity activity, String recipeId, String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        // Query Firestore to get the UID of the recipe owner
         db.collection("recipes")
                 .document(recipeId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     String ownerId = documentSnapshot.getString("creator");
-                    Log.d("Tìm thấy người dùng:",""+ownerId);
 
                     if (ownerId != null) {
-                        // If owner ID found, query again to get owner's fcmToken
                         db.collection("users")
                                 .document(ownerId)
                                 .get()
@@ -79,17 +74,14 @@ public class NotificationUtil {
                 try {
                     JSONObject jsonObject = new JSONObject();
 
-                    // Tạo JSON object cho thông báo
                     JSONObject notificationObj = new JSONObject();
                     notificationObj.put("title", "Bạn có thông báo mới");
                     notificationObj.put("body", message);
 
-                    // Tạo JSON object cho dữ liệu kèm theo thông báo
                     JSONObject dataObj = new JSONObject();
                     dataObj.put("userId", getCurrentUserId());
                     dataObj.put("dataSend", data);
-                    Log.d("Notification",data);
-                    // Tổng hợp thông báo và dữ liệu vào một JSON object chính
+
                     jsonObject.put("notification", notificationObj);
                     jsonObject.put("data", dataObj);
                     jsonObject.put("to", otherUserToken);
@@ -105,7 +97,6 @@ public class NotificationUtil {
         });
     }
 
-    // Gọi API để gửi thông báo
     private static void callApi(JSONObject jsonObject) {
         MediaType JSON = MediaType.get("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();

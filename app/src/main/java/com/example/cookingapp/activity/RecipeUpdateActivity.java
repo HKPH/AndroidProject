@@ -1,10 +1,8 @@
 package com.example.cookingapp.activity;
-
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -15,7 +13,6 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,9 +24,7 @@ import com.example.cookingapp.model.Recipe;
 import com.example.cookingapp.model.Step;
 import com.example.cookingapp.utils.DialogUtils;
 import com.example.cookingapp.utils.FirebaseUtil;
-import com.example.cookingapp.utils.NotificationUtil;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.example.cookingapp.utils.NotificationUtil;;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -49,7 +44,6 @@ public class RecipeUpdateActivity extends AppCompatActivity {
     private Recipe selectedRecipe;
     private FirebaseFirestore db;
     private StorageReference storageRef;
-    private FirebaseUser currentUser;
     private Uri selectedImageUri;
 
     @Override
@@ -57,10 +51,14 @@ public class RecipeUpdateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_recipe);
 
-        db = FirebaseFirestore.getInstance();
-        storageRef = FirebaseStorage.getInstance().getReference();
-        fragmentContainer= findViewById(R.id.fragment_container_step_detail);
+        initializeViews();
+        setupFirebase();
+        setupClickListener();
 
+        populateViews();
+    }
+
+    private void initializeViews() {
         editTextTitle = findViewById(R.id.recipe_title_edit);
         editTextDescription = findViewById(R.id.recipe_description_edit);
         editTextIngredients = findViewById(R.id.recipe_ingredients_edit);
@@ -68,77 +66,68 @@ public class RecipeUpdateActivity extends AppCompatActivity {
         editTextVideoUrl = findViewById(R.id.recipe_url_edit);
         imageViewPreview = findViewById(R.id.recipe_image);
         updateRecipeButton = findViewById(R.id.button_update_recipe);
-        shadowLayout= findViewById(R.id.overlay);
-        selectedRecipe = (Recipe) getIntent().getSerializableExtra("recipe");
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        ImageView imageViewAddStep = findViewById(R.id.button_add_step);
-        imageViewAddStep.setOnClickListener(v -> addEachStep());
-        shadowLayout.setOnClickListener(v-> closeFragment());
-        populateViews();
-
-        imageViewPreview.setOnClickListener(v -> openImagePicker());
-
-        updateRecipeButton.setOnClickListener(v -> updateRecipe());
+        shadowLayout = findViewById(R.id.overlay);
+        fragmentContainer = findViewById(R.id.fragment_container_step_detail);
     }
-    private void addEachStep()
-    {
-        EditText editTextSteps = findViewById(R.id.recipe_step_edit);
+
+    private void setupFirebase() {
+        db = FirebaseFirestore.getInstance();
+        storageRef = FirebaseStorage.getInstance().getReference();
+    }
+
+    private void setupClickListener() {
+        findViewById(R.id.button_add_step).setOnClickListener(v -> addStep());
+        imageViewPreview.setOnClickListener(v -> openImagePicker());
+        updateRecipeButton.setOnClickListener(v -> updateRecipe());
+        shadowLayout.setOnClickListener(v -> closeFragment());
+    }
+
+    private void populateViews() {
+        selectedRecipe = (Recipe) getIntent().getSerializableExtra("recipe");
+
+        editTextTitle.setText(selectedRecipe.getTitle());
+        editTextDescription.setText(selectedRecipe.getDescription());
+        editTextIngredients.setText(convertListToString(selectedRecipe.getIngredients()));
+        editTextVideoUrl.setText(selectedRecipe.getVideoUrl());
+
+        steps.addAll(selectedRecipe.getSteps());
+        stepAdapter = new StepAdapter(steps, this::showStepDetail);
+        RecyclerView recyclerView = findViewById(R.id.step_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(stepAdapter);
+
+        Glide.with(this).load(selectedRecipe.getImageUrl()).into(imageViewPreview);
+    }
+
+    private void addStep() {
         String[] parts = editTextSteps.getText().toString().split(":");
 
         if (parts.length == 2) {
             steps.add(new Step(parts[0], parts[1]));
             stepAdapter.notifyDataSetChanged();
-//            stepAdapter.updateSteps(steps);
             editTextSteps.setText("");
         } else {
-            DialogUtils.showErrorToast(RecipeUpdateActivity.this,"Có lỗi khi thêm các bước");
+            DialogUtils.showErrorToast(this, "Không thành công");
         }
     }
-    private StepAdapter.StepClickListener stepClickListener = new StepAdapter.StepClickListener() {
-        @Override
-        public void onStepClicked(String stepDetail) {
 
-            StepDetailFragment stepDetailFragment = new StepDetailFragment();
-            Log.d("Fragment nhận được",""+stepDetail);
-            replaceFragment(stepDetailFragment,stepDetail);
-        }
-    };
+    private void showStepDetail(String stepDetail) {
+        StepDetailFragment stepDetailFragment = new StepDetailFragment();
+        replaceFragment(stepDetailFragment, stepDetail);
+    }
+
     private void replaceFragment(Fragment fragment, String detail) {
         fragmentContainer.setVisibility(View.VISIBLE);
         Bundle bundle = new Bundle();
-        bundle.putString("detail", detail); // Thay "key" và "value" bằng dữ liệu cụ thể của bạn
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        bundle.putString("detail", detail);
         fragment.setArguments(bundle);
-        fragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container_step_detail, fragment)
-                .commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_step_detail, fragment).commit();
         shadowLayout.setVisibility(View.VISIBLE);
-
-
-
     }
+
     private void closeFragment() {
         fragmentContainer.setVisibility(View.GONE);
         shadowLayout.setVisibility(View.GONE);
-    }
-    private void populateViews() {
-        stepAdapter = new StepAdapter(steps, stepClickListener);
-        editTextTitle.setText(selectedRecipe.getTitle());
-        editTextDescription.setText(selectedRecipe.getDescription());
-        editTextIngredients.setText(convertListToString(selectedRecipe.getIngredients()));
-        steps = selectedRecipe.getSteps();
-        editTextVideoUrl.setText(selectedRecipe.getVideoUrl());
-
-
-        stepAdapter = new StepAdapter(steps, stepClickListener);
-        RecyclerView recyclerView = findViewById(R.id.step_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(stepAdapter);
-
-        Glide.with(this)
-                .load(selectedRecipe.getImageUrl())
-                .into(imageViewPreview);
     }
 
     private void openImagePicker() {
@@ -152,27 +141,16 @@ public class RecipeUpdateActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
             selectedImageUri = data.getData();
-            Glide.with(this)
-                    .load(selectedImageUri)
-                    .into(imageViewPreview);
+            Glide.with(this).load(selectedImageUri).into(imageViewPreview);
         }
     }
 
     private void updateRecipe() {
-        String updatedTitle = editTextTitle.getText().toString();
-        String updatedDescription = editTextDescription.getText().toString();
-        String updatedIngredients = editTextIngredients.getText().toString();
-        String updatedVideoUrl = editTextVideoUrl.getText().toString();
-
-        selectedRecipe.setTitle(updatedTitle);
-        selectedRecipe.setDescription(updatedDescription);
-
-        List<String> updatedIngredientsList = Arrays.asList(updatedIngredients.split("\n"));
-        List<Step> updatedStepsList = steps;
-
-        selectedRecipe.setIngredients(updatedIngredientsList);
-        selectedRecipe.setSteps(updatedStepsList);
-        selectedRecipe.setVideoUrl(updatedVideoUrl);
+        selectedRecipe.setTitle(editTextTitle.getText().toString());
+        selectedRecipe.setDescription(editTextDescription.getText().toString());
+        selectedRecipe.setIngredients(Arrays.asList(editTextIngredients.getText().toString().split("\n")));
+        selectedRecipe.setSteps(steps);
+        selectedRecipe.setVideoUrl(editTextVideoUrl.getText().toString());
 
         if (selectedImageUri != null) {
             uploadImageToFirebase(selectedImageUri);
@@ -180,29 +158,15 @@ public class RecipeUpdateActivity extends AppCompatActivity {
             updateRecipeData(null);
         }
     }
-    private String listStepInList(List<Step> list) {
-        StringBuilder builder = new StringBuilder();
-        int stepNumber = 1;
-        for (Step step : list) {
-            builder.append(stepNumber).append(". ").append(step.getStepName()).append("\n");
-            builder.append("   ").append(step.getStepDetail()).append("\n");
-            stepNumber++;
-        }
-        return builder.toString();
-    }
+
     private void uploadImageToFirebase(Uri imageUri) {
-        StorageReference recipeImageRef = storageRef.child("RecipeImage");
         String fileName = System.currentTimeMillis() + "." + getFileExtension(imageUri);
-        final StorageReference fileRef = recipeImageRef.child(fileName);
+        StorageReference fileRef = storageRef.child("RecipeImage").child(fileName);
 
         fileRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        String imageUrl = uri.toString();
-                        updateRecipeData(imageUrl);
-                    });
-                })
-                .addOnFailureListener(e -> DialogUtils.showErrorToast(RecipeUpdateActivity.this, "Upload failed: " + e.getMessage()));
+                .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl()
+                        .addOnSuccessListener(uri -> updateRecipeData(uri.toString())))
+                .addOnFailureListener(e -> DialogUtils.showErrorToast(this, "Có lỗi xảy ra" ));
     }
 
     private void updateRecipeData(String imageUrl) {
@@ -211,26 +175,23 @@ public class RecipeUpdateActivity extends AppCompatActivity {
         }
         selectedRecipe.setApprove(false);
 
-        db.collection("recipes")
-                .document(selectedRecipe.getId())
-                .set(selectedRecipe)
+        db.collection("recipes").document(selectedRecipe.getId()).set(selectedRecipe)
                 .addOnSuccessListener(aVoid -> {
                     sendNotificationToAdmin();
-                    DialogUtils.showSuccessToast(RecipeUpdateActivity.this, "Recipe updated successfully");
+                    DialogUtils.showSuccessToast(this, "Công thức đã được cập nhật");
                     finish();
                 })
-                .addOnFailureListener(e -> {
-                    DialogUtils.showErrorToast(RecipeUpdateActivity.this, "Error: " + e.getMessage());
-                });
+                .addOnFailureListener(e -> DialogUtils.showErrorToast(this, "Cập nhật công thức thất bại"));
     }
 
     private void sendNotificationToAdmin() {
-        FirebaseUtil.getAdminTokens().addOnSuccessListener(adminTokens -> {
-            for (String adminToken : adminTokens) {
-                NotificationUtil notificationUtil = new NotificationUtil();
-                notificationUtil.sendNotification("admin", "A recipe got updated by user", adminToken);
-            }
-        }).addOnFailureListener(e -> DialogUtils.showErrorToast(RecipeUpdateActivity.this, "Error: " + e.getMessage()));
+        FirebaseUtil.getAdminTokens()
+                .addOnSuccessListener(adminTokens -> {
+                    for (String adminToken : adminTokens) {
+                        NotificationUtil.sendNotification("admin", "Có người người đã cập nhật công thức", adminToken);
+                    }
+                })
+                .addOnFailureListener(e -> DialogUtils.showErrorToast(this, ""));
     }
 
     private String getFileExtension(Uri uri) {

@@ -17,7 +17,6 @@ public class StepDetailFragment extends Fragment {
     private TextView textViewStepDetail;
 
     public StepDetailFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -27,16 +26,10 @@ public class StepDetailFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_step_detail, container, false);
         Bundle bundle = getArguments();
         if (bundle != null) {
-            String value = bundle.getString("detail"); // Thay "key" bằng key bạn đã sử dụng trong Activity
+            String value = bundle.getString("detail");
             textViewStepDetail = view.findViewById(R.id.textView_step_detail);
             textViewStepDetail.setText(value);
         }
-
         return view;
-    }
-    public void closeActivity() {
-        if (getActivity() != null) {
-            getActivity().finish();
-        }
     }
 }

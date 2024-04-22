@@ -41,7 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
         String password = editTextPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            DialogUtils.showErrorToast(RegisterActivity.this, "Please fill in all fields");
+            DialogUtils.showErrorToast(RegisterActivity.this, "Hãy nhập đầy đủ thông tin");
             return;
         }
 
@@ -60,12 +60,12 @@ public class RegisterActivity extends AppCompatActivity {
                                             // Save user info to Firestore
                                             saveUserInfoToFirestore(userId, email, fcmToken);
                                         } else {
-                                            DialogUtils.showErrorToast(RegisterActivity.this, "Failed to get FCM token: " + tokenTask.getException().getMessage());
+//                                            DialogUtils.showErrorToast(RegisterActivity.this, "Failed to get FCM token: " + tokenTask.getException().getMessage());
                                         }
                                     });
                         }
                     } else {
-                        DialogUtils.showErrorToast(RegisterActivity.this, "Registration failed");
+                        DialogUtils.showErrorToast(RegisterActivity.this, "Đăng kí thất bại");
                     }
                 });
     }
@@ -81,10 +81,10 @@ public class RegisterActivity extends AppCompatActivity {
                 .set(user)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        DialogUtils.showSuccessToast(RegisterActivity.this, "Registration successful");
+                        DialogUtils.showSuccessToast(RegisterActivity.this, "Thành công");
                         finish();
                     } else {
-                        DialogUtils.showErrorToast(RegisterActivity.this, "Error: " + task.getException().getMessage());
+                        DialogUtils.showErrorToast(RegisterActivity.this, "Đăng kí thất bại" );
                     }
                 });
     }

@@ -41,7 +41,6 @@ public class FirebaseUtil {
                 return adminTokens;
             } else {
                 Exception exception = task.getException();
-                Log.e("FirebaseUtil", "Lỗi khi lấy danh sách mã token của admin", exception);
                 throw new IllegalStateException("Lỗi khi lấy danh sách mã token của admin", exception);
             }
         });
@@ -69,7 +68,6 @@ public class FirebaseUtil {
                                     listener.onError("Failed to like recipe");
                                 });
                     } else {
-                        // Nếu cặp uid và recipeId đã tồn tại, thông báo cho người dùng
                         listener.onError("You have already liked this recipe");
                     }
                 })
@@ -98,40 +96,5 @@ public class FirebaseUtil {
                 listener.onError("Error fetching recipe: " + task.getException());
             }
         });
-    }
-    public static void saveRatingToFirestore(AppCompatActivity activity, Rating rating, Recipe recipe, OnCompleteListener listener) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        // Save review data to Firestore here
-        db.collection("ratings")
-                .add(rating)
-                .addOnSuccessListener(documentReference -> {
-                    // Show success message
-                    listener.onSuccess("Review submitted successfully");
-                    // Notify recipe owner
-                    NotificationUtil.notifyRecipeOwner(activity, recipe.getId(), "Your recipe has received a new review!");
-                })
-                .addOnFailureListener(e -> {
-                    // Show error message
-                    listener.onError("Failed to submit review");
-                });
-    }
-
-    public static void checkIfUserReviewed(FirebaseFirestore db, String userId, String recipeId, OnCompleteListener listener) {
-        db.collection("ratings")
-                .whereEqualTo("recipeId", recipeId)
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        // If the user hasn't reviewed the recipe yet, submit the review
-                        listener.onSuccess("User can review");
-                    } else {
-                        // If the user has already reviewed the recipe, show a message
-                        listener.onError("User has already reviewed this recipe");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    listener.onError("Failed to check review status");
-                });
     }
 }

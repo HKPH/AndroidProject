@@ -82,7 +82,7 @@ public class AdminListFragment extends Fragment {
     private void setOnUnapprovedRecipeItemClickListener() {
         unapprovedAdapter.setOnItemClickListener(position -> {
             Recipe selectedRecipe = unapprovedRecipes.get(position);
-            Log.d("RecipeListFragment", "Clicked on recipe: " + selectedRecipe.getTitle());
+//            Log.d("RecipeListFragment", "Clicked on recipe: " + selectedRecipe.getTitle());
             Intent intent = new Intent(requireContext(), RecipeDetailActivity.class);
             intent.putExtra("recipeId", selectedRecipe.getId());
             startActivity(intent);
@@ -91,7 +91,7 @@ public class AdminListFragment extends Fragment {
     private void setOnApprovedRecipeItemClickListener() {
         approvedAdapter.setOnItemClickListener(position -> {
             Recipe selectedRecipe = approvedRecipes.get(position);
-            Log.d("RecipeListFragment", "Clicked on recipe: " + selectedRecipe.getTitle());
+//            Log.d("RecipeListFragment", "Clicked on recipe: " + selectedRecipe.getTitle());
             Intent intent = new Intent(requireContext(), RecipeDetailActivity.class);
             intent.putExtra("recipeId", selectedRecipe.getId());
             startActivity(intent);
@@ -115,6 +115,6 @@ public class AdminListFragment extends Fragment {
                         unapprovedAdapter.notifyDataSetChanged();
                     }
                 })
-                .addOnFailureListener(e -> DialogUtils.showErrorToast(getContext(), "Failed to load recipes"));
+                .addOnFailureListener(e -> DialogUtils.showErrorToast(getContext(), "Có lỗi xảy ra khi tải danh sách công thức"));
     }
 }
