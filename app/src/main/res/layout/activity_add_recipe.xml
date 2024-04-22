@@ -124,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="12dp"
-                    android:text="Nhập các bước thực hiện (mỗi bước 1 dòng)"
+                    android:text="Nhập các bước (VD: Bước 1: Cắm cơm)"
                     android:textColor="@color/text"
                     android:textSize="18sp"
                     app:layout_constraintTop_toBottomOf="@id/recipe_ingredients_edit" />

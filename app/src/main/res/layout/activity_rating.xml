@@ -9,7 +9,7 @@
         android:id="@+id/text_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Danh sách đánh giá "
+        android:text="Tất cả đánh giá"
         android:textSize="24sp"
         android:gravity="center"
         android:layout_margin="10dp"

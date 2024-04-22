@@ -91,6 +91,8 @@
                 android:background="@drawable/edit_text_rounded_corner"
                 android:elevation="5dp"
                 android:padding="10dp"
+                android:hint="Email"
+                android:textColorHint="@color/hint"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -114,6 +116,8 @@
                 android:layout_margin="10dp"
                 android:background="@drawable/edit_text_rounded_corner"
                 android:elevation="5dp"
+                android:hint="Số điện thoại"
+                android:textColorHint="@color/hint"
                 android:padding="10dp"
                 android:textSize="16sp" />
         </LinearLayout>
