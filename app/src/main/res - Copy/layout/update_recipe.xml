@@ -1,0 +1,90 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".activity.RecipeUpdateActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- EditText fields for recipe information -->
+        <EditText
+            android:id="@+id/editTextTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Title" />
+
+        <EditText
+            android:id="@+id/editTextDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editTextTitle"
+            android:layout_marginTop="16dp"
+            android:hint="Description" />
+
+        <EditText
+            android:id="@+id/editTextIngredients"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editTextDescription"
+            android:layout_marginTop="16dp"
+            android:hint="Ingredients" />
+
+        <EditText
+            android:id="@+id/editTextSteps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editTextIngredients"
+            android:layout_marginTop="16dp"
+            android:hint="Steps" />
+
+        <EditText
+            android:id="@+id/editTextVideoUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editTextSteps"
+            android:layout_marginTop="16dp"
+            android:hint="Video URL" />
+
+        <!-- EditText for approve option -->
+        <CheckBox
+            android:id="@+id/checkBoxApprove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editTextVideoUrl"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            android:text="Approve" />
+
+        <!-- Button to choose image -->
+        <Button
+            android:id="@+id/chooseImageButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/checkBoxApprove"
+            android:layout_marginTop="16dp"
+            android:text="Choose Image" />
+
+        <!-- Button to update recipe -->
+        <Button
+            android:id="@+id/updateRecipeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/chooseImageButton"
+            android:layout_marginTop="16dp"
+            android:text="Update Recipe" />
+
+        <!-- ImageView to display image preview -->
+        <ImageView
+            android:id="@+id/imageViewPreview"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_below="@id/updateRecipeButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:scaleType="centerCrop" />
+
+    </RelativeLayout>
+</ScrollView>

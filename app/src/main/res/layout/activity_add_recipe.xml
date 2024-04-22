@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.CookingApp2">
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layout_recipe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/recipe_img_tile_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:paddingBottom="10dp"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/recipe_image"
+                        android:layout_width="300dp"
+                        android:layout_height="200dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/food"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/recipe_title_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Tên món ăn"
+                    android:textColor="@color/text"
+                    android:textColorHint="@color/hint"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_img_tile_layout" />
+
+                <EditText
+                    android:id="@+id/recipe_title_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:padding="10dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/edit_text_rounded_corner"
+                    android:elevation="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/text"
+                    android:textColorHint="@color/hint"
+                    android:textSize="16sp"
+                    app:layout_constraintTop_toBottomOf="@+id/recipe_title_text"
+                    android:hint="Tên món ăn"
+                    tools:layout_editor_absoluteX="9dp" />
+                <TextView
+                    android:id="@+id/recipe_description_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Mô tả"
+                    android:textColor="@color/text"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_title_edit" />
+                <EditText
+                    android:id="@+id/recipe_description_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:padding="10dp"
+                    android:background="@drawable/edit_text_rounded_corner"
+                    android:textSize="16sp"
+                    android:elevation="5dp"
+                    android:hint="Mô tả món ăn"
+                    android:textColorHint="@color/hint"
+                    android:textColor="@color/text"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_description_text" />
+                <TextView
+                    android:id="@+id/recipe_ingredients_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Nhập nguyên liệu (nhập nguyên liệu theo dòng)"
+                    android:textColor="@color/text"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_description_edit" />
+                <EditText
+                    android:id="@+id/recipe_ingredients_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:padding="10dp"
+                    android:background="@drawable/edit_text_rounded_corner"
+                    android:textSize="16sp"
+                    android:elevation="5dp"
+                    android:hint="Nguyên liệu"
+                    android:textColorHint="@color/hint"
+                    android:textColor="@color/text"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_ingredients_text" />
+                <TextView
+                    android:id="@+id/recipe_step_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Nhập các bước thực hiện (mỗi bước 1 dòng)"
+                    android:textColor="@color/text"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_ingredients_edit" />
+
+                <EditText
+                    android:id="@+id/recipe_step_edit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/edit_text_rounded_corner"
+                    android:elevation="5dp"
+                    android:hint="Các bước thực hiện"
+                    android:padding="10dp"
+                    android:textColor="@color/text"
+                    android:textColorHint="@color/hint"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_step_text"
+                    app:layout_constraintWidth_percent="0.85" />
+
+                <ImageView
+                    android:id="@+id/button_add_step"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/add"
+                    android:contentDescription="Add Step"
+                    app:layout_constraintStart_toEndOf="@id/recipe_step_edit"
+                    app:layout_constraintTop_toTopOf="@id/recipe_step_edit"
+                    android:layout_margin="8dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/step_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_step_edit"/>
+
+                <TextView
+                    android:id="@+id/recipe_url_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Đường dẫn video"
+                    android:textColor="@color/text"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/step_recycler_view" />
+                <EditText
+                    android:id="@+id/recipe_url_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:padding="10dp"
+                    android:background="@drawable/edit_text_rounded_corner"
+                    android:textSize="16sp"
+                    android:elevation="5dp"
+                    android:hint="Nhập video"
+                    android:textColor="@color/text"
+                    android:textColorHint="@color/hint"
+
+                    app:layout_constraintTop_toBottomOf="@id/recipe_url_text" />
+                <Button
+                    android:id="@+id/add_recipe_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:backgroundTint="#4CAF50"
+                    android:textSize="20sp"
+                    app:layout_constraintTop_toBottomOf="@id/recipe_url_edit"
+                    android:text="Tạo công thức" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+    <View
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"/>
+    <FrameLayout
+        android:id="@+id/fragment_container_step_detail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+</RelativeLayout>

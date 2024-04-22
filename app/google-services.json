@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1080810227295",
+    "project_id": "cookingdb-90b0a",
+    "storage_bucket": "cookingdb-90b0a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080810227295:android:e8c3c109a45fc5ca0bbdea",
+        "android_client_info": {
+          "package_name": "com.example.cookingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYodZ4jCI80KPMKqSK31ZLWghfZi5fHZo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

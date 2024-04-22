@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home"
+        android:title="Home"
+        android:icon="@drawable/home"/>
+    <item
+        android:id="@+id/creatorList"
+        android:title="YourList"
+        android:icon="@drawable/baseline_create_24"/>
+    <item
+        android:id="@+id/likedList"
+        android:title="LikedList"
+        android:icon="@drawable/baseline_favorite_24"/>
+    <item
+        android:id="@+id/profile"
+        android:title="Account"
+        android:icon="@drawable/baseline_person_24"/>
+
+</menu>
+

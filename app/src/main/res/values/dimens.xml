@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="title">24sp</dimen>
+    <dimen name="content">16sp</dimen>
+    <dimen name="edit_title">18sp</dimen>
+
+</resources>

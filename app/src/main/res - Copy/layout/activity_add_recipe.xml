@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".activity.AddRecipeActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/addRecipeButton">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- ImageView -->
+            <ImageView
+                android:id="@+id/selectedImageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/default_profile_image" />
+
+            <!-- EditText for Title -->
+            <EditText
+                android:id="@+id/editTextTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/selectedImageView"
+                android:hint="Title" />
+
+            <!-- EditText for Description -->
+            <EditText
+                android:id="@+id/editTextDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextTitle"
+                android:layout_marginTop="16dp"
+                android:hint="Description" />
+
+            <!-- EditText for Ingredients -->
+            <EditText
+                android:id="@+id/editTextIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextDescription"
+                android:layout_marginTop="16dp"
+                android:hint="Ingredients" />
+
+            <!-- EditText for Steps -->
+            <EditText
+                android:id="@+id/editTextSteps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextIngredients"
+                android:layout_marginTop="16dp"
+                android:hint="Steps" />
+
+            <!-- EditText for Video URL -->
+            <EditText
+                android:id="@+id/editTextVideoUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextSteps"
+                android:layout_marginTop="16dp"
+                android:hint="Video URL" />
+
+            <!-- Button for choosing Image -->
+            <Button
+                android:id="@+id/chooseImageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextVideoUrl"
+                android:layout_marginTop="16dp"
+                android:text="Choose Image" />
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <!-- Button "Add Recipe" placed outside ScrollView -->
+    <Button
+        android:id="@+id/addRecipeButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Add Recipe" />
+
+</RelativeLayout>
