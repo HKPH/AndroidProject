@@ -1,5 +1,6 @@
 package com.example.cookingapp.activity;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
@@ -16,6 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 
 public class ChangePasswordActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
 
     private EditText editTextOldPassword;
     private EditText editTextNewPassword;
@@ -33,14 +35,22 @@ public class ChangePasswordActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
 
         initializeViews();
         initializeFirebase();
 
-        buttonChangePassword.setOnClickListener(v -> changePassword());
+        buttonChangePassword.setOnClickListener(v ->
+        {
+            progressDialog.show();
+            changePassword();
+        });
     }
 
     private void initializeViews() {
+
         editTextOldPassword = findViewById(R.id.edit_text_old_password);
         editTextNewPassword = findViewById(R.id.edit_text_new_password);
         editTextConfirmPassword = findViewById(R.id.edit_text_confirm_password);
@@ -71,14 +81,24 @@ public class ChangePasswordActivity extends AppCompatActivity {
             user.updatePassword(newPassword)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
+                            progressDialog.dismiss();
                             DialogUtils.showSuccessToast(this, SUCCESS_PASSWORD_CHANGED);
                             clearEditTextFields();
+
                         } else {
+                            progressDialog.dismiss();
                             DialogUtils.showErrorToast(this, ERROR_PASSWORD_CHANGE_FAILED);
+
                         }
-                    }).addOnFailureListener(e -> DialogUtils.showErrorToast(this, e.getMessage()));
+                    }).addOnFailureListener(e ->
+                    {
+                        progressDialog.dismiss();
+                        DialogUtils.showErrorToast(this, e.getMessage());
+                    });
         } else {
             DialogUtils.showErrorToast(this, ERROR_USER_NOT_FOUND);
+            progressDialog.dismiss();
+
         }
     }
 

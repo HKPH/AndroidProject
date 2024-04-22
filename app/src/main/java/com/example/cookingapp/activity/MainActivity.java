@@ -1,6 +1,7 @@
 package com.example.cookingapp.activity;
 
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -23,6 +24,7 @@ import android.Manifest;
 import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
 
     private BottomNavigationView mBottomNavigationView;
     private static final int PERMISSION_REQUEST_CODE = 1;
@@ -31,33 +33,34 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
 
         mBottomNavigationView = findViewById(R.id.navigation);
         FragmentManager fragmentManager = getSupportFragmentManager();
         BottomNavigationManager bottomNavigationManager = new BottomNavigationManager(this, mBottomNavigationView, fragmentManager);
         mBottomNavigationView.setSelectedItemId(R.id.home);
 
-        // Check user login status
         checkUserLoginStatus();
 
     }
 
     private void checkUserLoginStatus() {
+        progressDialog.show();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            // User is not logged in, redirect to login screen
+            progressDialog.dismiss();
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
         } else {
-            // User is logged in, continue with necessary operations
+            progressDialog.dismiss();
             getFCMToken();
-            // Add additional operations as needed
         }
     }
 
     private void requestPermissionsIfNeeded() {
-        // Check and request permissions if needed
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
@@ -72,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
                 if (user != null) {
                     String uid = user.getUid();
                     String token = task.getResult();
-                    // Update FCM token in Firestore
                     FirebaseFirestore.getInstance().collection("users").document(uid).update("fcmToken", token);
                     Log.d("FCM Token", "Token: " + token);
                 }

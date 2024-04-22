@@ -1,5 +1,6 @@
 package com.example.cookingapp.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.List;
 
 public class RecipeDetailActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
     private Recipe recipe;
     private String recipeId;
     private ImageView likeButton;
@@ -49,19 +51,17 @@ public class RecipeDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_detail);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
         db = FirebaseFirestore.getInstance();
-
-        // Initialize views
         initializeViews();
         isUserAdmin();
-        // Get recipeId from Intent
         recipeId = getIntent().getStringExtra("recipeId");
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        // Load recipe details
         loadRecipeDetails();
 
-        // Set click listeners
         setClickListeners();
     }
 
@@ -74,20 +74,23 @@ public class RecipeDetailActivity extends AppCompatActivity {
     }
 
     private void loadRecipeDetails() {
+        progressDialog.show();
         FirebaseUtil.getRecipeById(recipeId, new FirebaseUtil.OnRecipeLoadListener() {
             @Override
             public void onRecipeLoaded(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
                     recipe = documentSnapshot.toObject(Recipe.class);
-                    // Populate recipe details to views
                     populateRecipeDetails();
+                    progressDialog.dismiss();
                 } else {
+                    progressDialog.dismiss();
                     DialogUtils.showErrorToast(RecipeDetailActivity.this, "Recipe not found");
                 }
             }
 
             @Override
             public void onError(String error) {
+                progressDialog.dismiss();
                 DialogUtils.showErrorToast(RecipeDetailActivity.this, error);
             }
         });
@@ -280,12 +283,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
     private void approveRecipe() {
         NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this,recipeId, "Công thức của bạn đã được duyệt");
-        // Update "approved" field of recipe to true
         db.collection("recipes").document(recipeId)
                 .update("approve", true)
                 .addOnSuccessListener(aVoid -> {
                     DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Công thức đã được thêm");
-                    // Cập nhật giao diện
+
                     buttonAdd.setVisibility(View.INVISIBLE);
                     buttonDelete.setVisibility(View.INVISIBLE);
                 })
@@ -296,7 +298,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
     private void deleteRecipe() {
         NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this,recipeId, "Công thức của bạn đã bị từ chối");
-        // Xóa recipe khỏi Firestore
         db.collection("recipes").document(recipeId)
                 .delete()
                 .addOnSuccessListener(aVoid -> {

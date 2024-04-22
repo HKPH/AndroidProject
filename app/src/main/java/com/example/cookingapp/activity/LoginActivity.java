@@ -1,5 +1,6 @@
 package com.example.cookingapp.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
 
     private EditText editTextEmail, editTextPassword;
     private FirebaseAuth mAuth;
@@ -24,6 +26,9 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Logging in...");
+        progressDialog.setCancelable(false);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -52,10 +57,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
+        progressDialog.show();
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            progressDialog.dismiss();
             DialogUtils.showErrorToast(this, "Please fill in all fields");
             return;
         }
@@ -64,10 +71,10 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Login success
+                        progressDialog.dismiss();
                         startMainActivity();
                     } else {
-                        // Login failed
+                        progressDialog.dismiss();
                         DialogUtils.showErrorToast(LoginActivity.this, "Login failed. Please try again.");
                     }
                 });

@@ -1,5 +1,6 @@
 package com.example.cookingapp.activity;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -20,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RatingActivity extends AppCompatActivity {
-    private static final String NO_RATINGS_MESSAGE = "Chưa có đánh giá";
     private TextView textHeader;
     private RecyclerView recyclerView;
     private RatingAdapter ratingAdapter;
     private FirebaseFirestore db;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +37,17 @@ public class RatingActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_ratings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
+
         String recipeId = getIntent().getStringExtra("recipeId");
         getRatingsForRecipe(recipeId);
     }
 
     private void getRatingsForRecipe(String recipeId) {
+        progressDialog.show();
+
         CollectionReference ratingsRef = db.collection("ratings");
         ratingsRef.whereEqualTo("recipeId", recipeId)
                 .get()
@@ -57,12 +64,13 @@ public class RatingActivity extends AppCompatActivity {
                         } else {
                             showNoRatingsMessage();
                         }
+                        progressDialog.dismiss();
                     } else {
+                        progressDialog.dismiss();
                         DialogUtils.showErrorToast(RatingActivity.this, "Error getting ratings");
                     }
                 });
     }
-
     private void showNoRatingsMessage() {
         textHeader.setText("Chưa có đánh giá");
     }

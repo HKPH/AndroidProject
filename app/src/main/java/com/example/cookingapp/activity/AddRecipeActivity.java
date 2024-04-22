@@ -1,5 +1,6 @@
 package com.example.cookingapp.activity;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AddRecipeActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
 
     private Uri imageUri;
     private ImageView selectedImageView;
@@ -51,6 +53,10 @@ public class AddRecipeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
+
         setContentView(R.layout.activity_add_recipe);
         initializeViews();
         setupListeners();
@@ -136,6 +142,7 @@ public class AddRecipeActivity extends AppCompatActivity {
     }
 
     private void uploadImageAndAddRecipe() {
+        progressDialog.show();
         if (imageUri != null) {
             String imageName = System.currentTimeMillis() + "." + getFileExtension(imageUri);
             final StorageReference fileRef = storageRef.child("RecipeImage").child(imageName);
@@ -168,6 +175,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         String videoUrl = editTextVideoUrl.getText().toString().trim();
 
         if (title.isEmpty() || description.isEmpty() || ingredients.isEmpty() || steps.isEmpty() || videoUrl.isEmpty()) {
+            progressDialog.dismiss();
             DialogUtils.showErrorToast(AddRecipeActivity.this, "Điền vào tất cả thông tin");
             return;
         }
@@ -175,6 +183,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser == null) {
 //            DialogUtils.showErrorToast(AddRecipeActivity.this, "User not logged in");
+            progressDialog.dismiss();
             return;
         }
 
@@ -189,11 +198,20 @@ public class AddRecipeActivity extends AppCompatActivity {
                             .addOnSuccessListener(aVoid -> {
                                 notifyAdmins();
                                 DialogUtils.showSuccessToast(AddRecipeActivity.this, "Công thức được thêm thành công");
+                                progressDialog.dismiss();
                                 finish();
                             })
-                            .addOnFailureListener(e -> DialogUtils.showErrorToast(AddRecipeActivity.this, "Không thể tạo công thức" ));
+                            .addOnFailureListener(e ->
+                            {
+                                progressDialog.dismiss();
+                                DialogUtils.showErrorToast(AddRecipeActivity.this, "Không thể tạo công thức" );
+
+                            });
                 })
-                .addOnFailureListener(e -> DialogUtils.showErrorToast(AddRecipeActivity.this, "Không thể tạo công thức"));
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    DialogUtils.showErrorToast(AddRecipeActivity.this, "Không thể tạo công thức");
+                });
     }
 
     private void notifyAdmins() {
