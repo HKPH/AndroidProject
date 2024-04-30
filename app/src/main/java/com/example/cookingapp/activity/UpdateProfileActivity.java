@@ -1,5 +1,6 @@
 package com.example.cookingapp.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UpdateProfileActivity extends AppCompatActivity {
-
+    private ProgressDialog progressDialog;
     private ImageView imageViewProfile;
     private EditText editTextName;
     private EditText editTextPhone, editTextEmail;
@@ -41,7 +42,9 @@ public class UpdateProfileActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_profile);
-
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
         initializeViews();
         setupListeners();
         initializeFirebase();
@@ -115,7 +118,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
             editTextPhone.requestFocus();
             return;
         }
-
+        progressDialog.show();
         Map<String, Object> user = new HashMap<>();
         user.put("name", name);
         user.put("phone", phone);
@@ -129,19 +132,13 @@ public class UpdateProfileActivity extends AppCompatActivity {
                         DialogUtils.showErrorToast(this, "Lỗi khi cập nhật thông tin");
                     }
                 });
+        progressDialog.dismiss();
     }
 
     private void navigateToChangePassword() {
         startActivity(new Intent(this, ChangePasswordActivity.class));
     }
 
-    private void logout() {
-        FirebaseAuth.getInstance().signOut();
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
 
     private void selectImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

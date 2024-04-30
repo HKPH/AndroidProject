@@ -1,4 +1,5 @@
 package com.example.cookingapp.activity;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class RecipeUpdateActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
     private View shadowLayout;
     private FrameLayout fragmentContainer;
     private StepAdapter stepAdapter;
@@ -50,12 +52,15 @@ public class RecipeUpdateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_recipe);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
 
         initializeViews();
         setupFirebase();
         setupClickListener();
-
         populateViews();
+
     }
 
     private void initializeViews() {
@@ -101,13 +106,12 @@ public class RecipeUpdateActivity extends AppCompatActivity {
 
     private void addStep() {
         String[] parts = editTextSteps.getText().toString().split(":");
-
         if (parts.length == 2) {
             steps.add(new Step(parts[0], parts[1]));
             stepAdapter.notifyDataSetChanged();
             editTextSteps.setText("");
         } else {
-            DialogUtils.showErrorToast(this, "Không thành công");
+            DialogUtils.showErrorToast(this, "Có lỗi khi hiển thị các bước");
         }
     }
 
@@ -146,6 +150,7 @@ public class RecipeUpdateActivity extends AppCompatActivity {
     }
 
     private void updateRecipe() {
+        progressDialog.show();
         selectedRecipe.setTitle(editTextTitle.getText().toString());
         selectedRecipe.setDescription(editTextDescription.getText().toString());
         selectedRecipe.setIngredients(Arrays.asList(editTextIngredients.getText().toString().split("\n")));
@@ -157,6 +162,7 @@ public class RecipeUpdateActivity extends AppCompatActivity {
         } else {
             updateRecipeData(null);
         }
+        progressDialog.dismiss();
     }
 
     private void uploadImageToFirebase(Uri imageUri) {
