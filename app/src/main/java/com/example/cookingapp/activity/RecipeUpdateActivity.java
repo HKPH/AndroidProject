@@ -9,6 +9,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
@@ -42,6 +43,7 @@ public class RecipeUpdateActivity extends AppCompatActivity {
     private List<Step> steps = new ArrayList<>();
     private EditText editTextTitle, editTextDescription, editTextIngredients, editTextSteps, editTextVideoUrl;
     private ImageView imageViewPreview;
+    private ImageButton backButton;
     private Button updateRecipeButton;
     private Recipe selectedRecipe;
     private FirebaseFirestore db;
@@ -73,6 +75,7 @@ public class RecipeUpdateActivity extends AppCompatActivity {
         updateRecipeButton = findViewById(R.id.button_update_recipe);
         shadowLayout = findViewById(R.id.overlay);
         fragmentContainer = findViewById(R.id.fragment_container_step_detail);
+        backButton = findViewById(R.id.button_back);
     }
 
     private void setupFirebase() {
@@ -85,6 +88,12 @@ public class RecipeUpdateActivity extends AppCompatActivity {
         imageViewPreview.setOnClickListener(v -> openImagePicker());
         updateRecipeButton.setOnClickListener(v -> updateRecipe());
         shadowLayout.setOnClickListener(v -> closeFragment());
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 
     private void populateViews() {

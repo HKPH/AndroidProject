@@ -38,32 +38,35 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
-
         initializeViews(view);
         initializeFirebase();
-
-        if (mUser != null) {
-            loadUserData();
-        }
-        ImageView imageEditProfile = view.findViewById(R.id.image_edit_profile);
-        imageEditProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openEditProfileActivity();
-            }
-        });
+        loadUserData();
         return view;
     }
-    private void openEditProfileActivity() {
-        Intent intent = new Intent(getActivity(), UpdateProfileActivity.class);
-        startActivity(intent);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupClickListeners();
     }
+
     private void initializeViews(View view) {
         imageViewProfile = view.findViewById(R.id.image_view_profile);
         textViewName = view.findViewById(R.id.text_name);
         textViewEmail = view.findViewById(R.id.text_email);
         textViewPhone = view.findViewById(R.id.text_phone);
         buttonLogout = view.findViewById(R.id.button_logout);
+    }
+
+    private void setupClickListeners() {
+        ImageView imageEditProfile = requireView().findViewById(R.id.image_edit_profile);
+        imageEditProfile.setOnClickListener(v -> openEditProfileActivity());
+
+        buttonLogout.setOnClickListener(v -> logout());
+    }
+
+    private void openEditProfileActivity() {
+        Intent intent = new Intent(getActivity(), UpdateProfileActivity.class);
+        startActivity(intent);
     }
 
     private void initializeFirebase() {
@@ -73,39 +76,35 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void loadUserData() {
-        mFirestore.collection("users").document(mUser.getUid())
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document != null && document.exists()) {
-                            String name = document.getString("name");
-                            String email = document.getString("email");
-                            String phone = document.getString("phone");
-                            String photoUrl = document.getString("photo");
+        if (mUser != null) {
+            mFirestore.collection("users").document(mUser.getUid())
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                String name = document.getString("name");
+                                String email = document.getString("email");
+                                String phone = document.getString("phone");
+                                String photoUrl = document.getString("photo");
 
-                            textViewName.setText(name);
-                            textViewEmail.setText(email);
-                            textViewPhone.setText(phone);
-                            if (photoUrl != null && !photoUrl.isEmpty()) {
-                                Glide.with(this)
-                                        .load(photoUrl)
-                                        .apply(RequestOptions.bitmapTransform(new CircleCrop()))
-                                        .into(imageViewProfile);
+                                textViewName.setText(name);
+                                textViewEmail.setText(email);
+                                textViewPhone.setText(phone);
+                                if (photoUrl != null && !photoUrl.isEmpty()) {
+                                    Glide.with(this)
+                                            .load(photoUrl)
+                                            .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+                                            .into(imageViewProfile);
+                                }
+                            } else {
+                                DialogUtils.showErrorToast(getActivity(), "Không tìm thấy thông tin người dùng");
                             }
                         } else {
-                            DialogUtils.showErrorToast(getActivity(), "Không tìm thấy thông tin người dùng");
+                            DialogUtils.showErrorToast(getActivity(), "Lỗi khi tải thông tin người dùng");
                         }
-                    } else {
-                        DialogUtils.showErrorToast(getActivity(), "Lỗi khi tải thông tin người dùng");
-                    }
-                });
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        buttonLogout.setOnClickListener(v -> logout());
+                    });
+        }
     }
 
     private void logout() {

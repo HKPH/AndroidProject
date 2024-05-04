@@ -22,7 +22,7 @@ public class OpenActivity extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading...");
-        progressDialog.setCancelable(false); //
+        progressDialog.setCancelable(false);
 
         Bundle extras = getIntent().getExtras();
         String recipeId = (extras != null) ? extras.getString("dataSend") : null;

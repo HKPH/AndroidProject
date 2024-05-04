@@ -18,10 +18,10 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 public class RegisterActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
-
     private EditText editTextEmail, editTextPassword;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private Button registerButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +30,20 @@ public class RegisterActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading...");
         progressDialog.setCancelable(false);
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+
+        initializeViews();
+        setClickListeners();
+    }
+
+    private void initializeViews() {
         editTextEmail = findViewById(R.id.edit_email);
         editTextPassword = findViewById(R.id.edit_password);
-        Button registerButton = findViewById(R.id.button_register);
+        registerButton = findViewById(R.id.button_register);
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+    }
+
+    private void setClickListeners() {
         registerButton.setOnClickListener(v -> registerUser());
     }
 
@@ -42,8 +51,12 @@ public class RegisterActivity extends AppCompatActivity {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            DialogUtils.showErrorToast(RegisterActivity.this, "Hãy nhập đầy đủ thông tin");
+        if (TextUtils.isEmpty(email)) {
+            editTextEmail.setError("Vui lòng nhập địa chỉ Email");
+            return;
+        }
+        if (TextUtils.isEmpty(password)) {
+            editTextPassword.setError("Vui lòng nhập mật khẩu");
             return;
         }
 
@@ -54,36 +67,38 @@ public class RegisterActivity extends AppCompatActivity {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
                         if (firebaseUser != null) {
                             String userId = firebaseUser.getUid();
-                            FirebaseMessaging.getInstance().getToken()
-                                    .addOnCompleteListener(tokenTask -> {
-                                        if (tokenTask.isSuccessful() && tokenTask.getResult() != null) {
-                                            String fcmToken = tokenTask.getResult();
-                                            saveUserInfoToFirestore(userId, email, fcmToken);
-                                        } else {
-//                                            DialogUtils.showErrorToast(RegisterActivity.this, "Failed to get FCM token: " + tokenTask.getException().getMessage());
-                                        }
-                                    });
+                            saveUserInfoToFirestore(userId, email);
                         }
                     } else {
-                        DialogUtils.showErrorToast(RegisterActivity.this, "Đăng kí thất bại");
+                        progressDialog.dismiss();
+                        DialogUtils.showErrorToast(RegisterActivity.this, "Mật khẩu yêu cầu ít nhất 6 kí tự");
                     }
                 });
-        progressDialog.dismiss();
     }
 
-    private void saveUserInfoToFirestore(String userId, String email, String fcmToken) {
-        User user = new User(email);
-        user.setCheckAuth(false);
-        user.setFcmToken(fcmToken);
-        db.collection("users")
-                .document(userId)
-                .set(user)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DialogUtils.showSuccessToast(RegisterActivity.this, "Thành công");
-                        finish();
+    private void saveUserInfoToFirestore(String userId, String email) {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(tokenTask -> {
+                    if (tokenTask.isSuccessful() && tokenTask.getResult() != null) {
+                        String fcmToken = tokenTask.getResult();
+                        User user = new User(email);
+                        user.setCheckAuth(false);
+                        user.setFcmToken(fcmToken);
+                        db.collection("users")
+                                .document(userId)
+                                .set(user)
+                                .addOnCompleteListener(task -> {
+                                    progressDialog.dismiss();
+                                    if (task.isSuccessful()) {
+                                        DialogUtils.showSuccessToast(RegisterActivity.this, "Thành công");
+                                        finish();
+                                    } else {
+                                        DialogUtils.showErrorToast(RegisterActivity.this, "Đăng kí thất bại");
+                                    }
+                                });
                     } else {
-                        DialogUtils.showErrorToast(RegisterActivity.this, "Đăng kí thất bại" );
+                        progressDialog.dismiss();
+                        DialogUtils.showErrorToast(RegisterActivity.this, "Lấy token thất bại");
                     }
                 });
     }

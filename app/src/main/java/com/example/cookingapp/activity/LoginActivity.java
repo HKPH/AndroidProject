@@ -13,76 +13,73 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.cookingapp.R;
 import com.example.cookingapp.utils.DialogUtils;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
-    private ProgressDialog progressDialog;
-
     private EditText editTextEmail, editTextPassword;
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        initializeViews();
+        initializeFirebase();
+        setupClickListeners();
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Logging in...");
         progressDialog.setCancelable(false);
+    }
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-
+    private void initializeViews() {
         editTextEmail = findViewById(R.id.edit_email);
         editTextPassword = findViewById(R.id.edit_password);
+    }
 
+    private void initializeFirebase() {
+        mAuth = FirebaseAuth.getInstance();
+    }
+
+    private void setupClickListeners() {
         Button loginButton = findViewById(R.id.button_login);
         loginButton.setOnClickListener(v -> loginUser());
 
         TextView registerText = findViewById(R.id.registerText);
-        registerText.setOnClickListener(v -> openRegisterActivity());
+        registerText.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
 
         TextView forgotPassText = findViewById(R.id.forgotPassText);
-        forgotPassText.setOnClickListener(v -> openResetPasswordActivity());
-    }
-
-    private void openRegisterActivity() {
-        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-        startActivity(intent);
-    }
-
-    private void openResetPasswordActivity() {
-        Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
-        startActivity(intent);
+        forgotPassText.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class)));
     }
 
     private void loginUser() {
-        progressDialog.show();
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            progressDialog.dismiss();
-            DialogUtils.showErrorToast(this, "Please fill in all fields");
+
+        if (TextUtils.isEmpty(email) ) {
+            editTextEmail.setError("Vui lòng nhập địa chỉ Email");
+            return;
+        }
+        if (TextUtils.isEmpty(password)) {
+            editTextPassword.setError("Vui lòng nhập mật khẩu");
             return;
         }
 
-        // Login user with email and password
+        progressDialog.show();
+
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
+                    progressDialog.dismiss();
                     if (task.isSuccessful()) {
-                        progressDialog.dismiss();
                         startMainActivity();
                     } else {
-                        progressDialog.dismiss();
-                        DialogUtils.showErrorToast(LoginActivity.this, "Login failed. Please try again.");
+                        DialogUtils.showErrorToast(LoginActivity.this, "Đăng nhập thất bại. Hãy thử lại");
                     }
                 });
     }
 
     private void startMainActivity() {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
     }
 }

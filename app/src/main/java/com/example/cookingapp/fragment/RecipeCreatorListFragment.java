@@ -48,7 +48,6 @@ public class RecipeCreatorListFragment extends Fragment {
         setupFirebase();
         setupAddRecipeButton();
         loadRecipeList();
-
         return view;
     }
 
@@ -100,6 +99,7 @@ public class RecipeCreatorListFragment extends Fragment {
 
         db.collection("recipes")
                 .whereEqualTo("creator", currentUser.getUid())
+                .whereEqualTo("approve", true)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     recipes.clear();

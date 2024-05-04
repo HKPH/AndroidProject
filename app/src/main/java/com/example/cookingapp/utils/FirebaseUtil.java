@@ -51,31 +51,6 @@ public class FirebaseUtil {
         void onError(String error);
     }
 
-    public static void likeRecipe(FirebaseFirestore db, String userId, String recipeId, OnCompleteListener listener) {
-        db.collection("likes")
-                .whereEqualTo("userId", userId)
-                .whereEqualTo("recipeId", recipeId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        // Nếu không có cặp uid và recipeId nào tồn tại, thêm mới vào Firebase
-                        db.collection("likes")
-                                .add(new Like(userId, recipeId))
-                                .addOnSuccessListener(documentReference -> {
-                                    listener.onSuccess("Recipe liked");
-                                })
-                                .addOnFailureListener(e -> {
-                                    listener.onError("Failed to like recipe");
-                                });
-                    } else {
-                        listener.onError("You have already liked this recipe");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    listener.onError("Failed to check like status");
-                });
-    }
-
     public interface OnRecipeLoadListener {
         void onRecipeLoaded(DocumentSnapshot documentSnapshot);
         void onError(String error);

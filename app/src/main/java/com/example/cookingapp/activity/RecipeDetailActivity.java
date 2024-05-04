@@ -9,6 +9,7 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -42,9 +43,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     private Rating rating;
     private EditText editTextReview;
-    private ImageView buttonSubmitReview;
-    private ImageView buttonAdd;
-    private ImageView buttonDelete;
+    private ImageView buttonSubmitReview,buttonBack;
+    private Button buttonAdd,buttonDelete;
     private FirebaseFirestore db;
 
     @Override
@@ -59,10 +59,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         isUserAdmin();
         recipeId = getIntent().getStringExtra("recipeId");
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
         loadRecipeDetails();
-
-        setClickListeners();
+        setupClickListeners();
     }
 
     private void initializeViews() {
@@ -71,26 +69,23 @@ public class RecipeDetailActivity extends AppCompatActivity {
         buttonSubmitReview = findViewById(R.id.button_submit_review);
         buttonAdd=findViewById(R.id.button_add);
         buttonDelete=findViewById(R.id.button_delete);
+        buttonBack=findViewById(R.id.button_back);
     }
 
     private void loadRecipeDetails() {
-        progressDialog.show();
         FirebaseUtil.getRecipeById(recipeId, new FirebaseUtil.OnRecipeLoadListener() {
             @Override
             public void onRecipeLoaded(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
                     recipe = documentSnapshot.toObject(Recipe.class);
                     populateRecipeDetails();
-                    progressDialog.dismiss();
                 } else {
-                    progressDialog.dismiss();
                     DialogUtils.showErrorToast(RecipeDetailActivity.this, "Recipe not found");
                 }
             }
 
             @Override
             public void onError(String error) {
-                progressDialog.dismiss();
                 DialogUtils.showErrorToast(RecipeDetailActivity.this, error);
             }
         });
@@ -107,6 +102,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         textViewIngredients.setText(formatListToString(recipe.getIngredients()));
         textViewSteps.setText(formatListStepToString(recipe.getSteps()));
         Glide.with(RecipeDetailActivity.this).load(recipe.getImageUrl()).into(imageViewRecipe);
+        checkUserLikedRecipe(currentUser.getUid(), recipeId);
+
     }
     private String formatListStepToString(List<Step> list) {
         StringBuilder builder = new StringBuilder();
@@ -119,68 +116,72 @@ public class RecipeDetailActivity extends AppCompatActivity {
         return builder.toString();
     }
 
-    private void setClickListeners() {
+    private void setupClickListeners() {
         likeButton.setOnClickListener(v -> toggleLikeStatus());
         buttonSubmitReview.setOnClickListener(v -> submitReview());
         findViewById(R.id.text_video_url).setOnClickListener(v -> openVideoGuide());
         findViewById(R.id.text_rating_list).setOnClickListener(v -> openRatingActivity());
         buttonAdd.setOnClickListener(v -> approveRecipe());
         buttonDelete.setOnClickListener(v -> deleteRecipe());
+        buttonBack.setOnClickListener(v -> onBackPressed());
+
     }
 
     private void toggleLikeStatus() {
         String userId = currentUser.getUid();
+        clickLikeRecipe(userId, recipeId);
+    }
+    private void clickLikeRecipe(String userId, String recipeId) {
         db.collection("likes")
-                .whereEqualTo("recipeId", recipeId)
                 .whereEqualTo("userId", userId)
+                .whereEqualTo("recipeId", recipeId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Thích");
-                        addLike(userId);
+                        db.collection("likes")
+                                .add(new Like(userId, recipeId))
+                                .addOnSuccessListener(documentReference -> {
+                                    likeButton.setImageResource(R.drawable.baseline_favorite_24);
+                                    NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this, recipeId, "Có người đã thích công thức của bạn!");
+                                })
+                                .addOnFailureListener(e -> {
+                                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Có lỗi xảy ra");
+
+                                });
                     } else {
-                        DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Bỏ thích");
-                        removeLike(queryDocumentSnapshots);
+                        for (DocumentSnapshot snapshot : queryDocumentSnapshots.getDocuments()) {
+                            String likeId = snapshot.getId();
+                            db.collection("likes").document(likeId)
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> {
+                                        likeButton.setImageResource(R.drawable.baseline_favorite_border_24);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        DialogUtils.showErrorToast(RecipeDetailActivity.this, "Có lỗi xảy ra");
+                                    });
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // Handle failure
                 });
     }
 
-    private void addLike(String userId) {
-        Like like = new Like();
-        like.setUserId(userId);
-        like.setRecipeId(recipeId);
-        FirebaseUtil.likeRecipe(db, userId, recipeId, new FirebaseUtil.OnCompleteListener() {
-            @Override
-            public void onSuccess(String message) {
-                likeButton.setImageResource(R.drawable.baseline_favorite_24);
-//                DialogUtils.showSuccessToast(RecipeDetailActivity.this, message);
-                // Notify recipe owner
-                NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this, recipeId, "Có người đã thích công thức của bạn!");
-            }
 
-            @Override
-            public void onError(String error) {
-//                DialogUtils.showErrorToast(RecipeDetailActivity.this, error);
-            }
-        });
-    }
 
-    private void removeLike(QuerySnapshot queryDocumentSnapshots) {
-        for (DocumentSnapshot snapshot : queryDocumentSnapshots.getDocuments()) {
-            String likeId = snapshot.getId();
-            db.collection("likes").document(likeId)
-                    .delete()
-                    .addOnSuccessListener(aVoid -> {
-                        likeButton.setImageResource(R.drawable.baseline_favorite_border_24);
-//                        DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Removed like");
-                    })
-                    .addOnFailureListener(e -> {
-                        // Handle failure
-                    });
-        }
+    private void checkUserLikedRecipe(String userId, String recipeId) {
+        db.collection("likes")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("recipeId", recipeId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        likeButton.setImageResource(R.drawable.baseline_favorite_24);
+                    }
+                    else {
+                        likeButton.setImageResource(R.drawable.baseline_favorite_border_24);                    }
+                })
+                .addOnFailureListener(e -> {
+                });
     }
 
     private void submitReview() {
@@ -218,7 +219,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     NotificationUtil.notifyRecipeOwner(RecipeDetailActivity.this, recipeId, "Công thức của bạn nhận được 1 đánh giá");
                 })
                 .addOnFailureListener(e -> {
-                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Failed to submit review");
+                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Lỗi khi đánh giá");
                 });
     }
 
@@ -238,10 +239,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         startActivity(intent);
     }
     private void isUserAdmin() {
-        // Lấy UID của người dùng hiện tại từ Firebase Auth
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Thực hiện truy vấn để lấy thông tin về người dùng từ Firebase Firestore
         FirebaseFirestore.getInstance().collection("users").document(uid)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -301,12 +300,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
         db.collection("recipes").document(recipeId)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
-                    DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Đã xóa công thức");
-                    // Finish activity
+//                    DialogUtils.showSuccessToast(RecipeDetailActivity.this, "Đã xóa công thức");
+
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Chưa xóa công thức");
+//                    DialogUtils.showErrorToast(RecipeDetailActivity.this, "Chưa xóa công thức");
                 });
     }
 

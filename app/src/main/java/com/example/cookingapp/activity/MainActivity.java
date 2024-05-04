@@ -42,12 +42,12 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationManager bottomNavigationManager = new BottomNavigationManager(this, mBottomNavigationView, fragmentManager);
         mBottomNavigationView.setSelectedItemId(R.id.home);
 
-        checkUserLoginStatus();
+//        checkUserLoginStatus();
 
     }
 
     private void checkUserLoginStatus() {
-        progressDialog.show();
+//        progressDialog.show();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             progressDialog.dismiss();
@@ -55,16 +55,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         } else {
-            progressDialog.dismiss();
+//            progressDialog.dismiss();
             getFCMToken();
-        }
-    }
-
-    private void requestPermissionsIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
-            }
         }
     }
 

@@ -103,6 +103,7 @@ public class LikedRecipeListFragment extends Fragment {
     private void loadRecipes(List<String> recipeIds) {
         db.collection("recipes")
                 .whereIn("id", recipeIds)
+                .whereEqualTo("approve", true)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     likedRecipes.clear();

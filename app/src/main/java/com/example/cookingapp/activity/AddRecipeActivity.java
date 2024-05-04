@@ -11,6 +11,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,6 +50,8 @@ public class AddRecipeActivity extends AppCompatActivity {
     private StepAdapter stepAdapter;
     private View shadowLayout;
     private FrameLayout fragmentContainer;
+    private ImageButton buttonBack;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +62,7 @@ public class AddRecipeActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_add_recipe);
         initializeViews();
-        setupListeners();
+        setupClickListeners();
         initializeFirebase();
     }
 
@@ -71,16 +74,21 @@ public class AddRecipeActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(stepAdapter);
         fragmentContainer = findViewById(R.id.fragment_container_step_detail);
+        buttonBack = findViewById(R.id.button_back);
     }
 
-    private void setupListeners() {
+    private void setupClickListeners() {
+
         selectedImageView.setOnClickListener(v -> openFileChooser());
         ImageView imageViewAddStep = findViewById(R.id.button_add_step);
         imageViewAddStep.setOnClickListener(v -> addEachStep());
         Button addRecipeButton = findViewById(R.id.add_recipe_button);
         addRecipeButton.setOnClickListener(v -> uploadImageAndAddRecipe());
         shadowLayout.setOnClickListener(v -> closeFragment());
+        buttonBack.setOnClickListener(v -> onBackPressed());
+
     }
+
 
     private void closeFragment() {
         fragmentContainer.setVisibility(View.GONE);

@@ -2,7 +2,6 @@ package com.example.cookingapp.activity;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,46 +30,60 @@ public class RatingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rating);
-        db = FirebaseFirestore.getInstance();
-
-        textHeader = findViewById(R.id.text_header);
-        recyclerView = findViewById(R.id.recycler_ratings);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading...");
-        progressDialog.setCancelable(false);
+        initializeViews();
+        initializeFirebase();
+        setupRecyclerView();
 
         String recipeId = getIntent().getStringExtra("recipeId");
         getRatingsForRecipe(recipeId);
     }
 
+    private void initializeViews() {
+        textHeader = findViewById(R.id.text_header);
+        recyclerView = findViewById(R.id.recycler_ratings);
+        progressDialog = new ProgressDialog(this);
+    }
+
+    private void initializeFirebase() {
+        db = FirebaseFirestore.getInstance();
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
     private void getRatingsForRecipe(String recipeId) {
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
         progressDialog.show();
 
         CollectionReference ratingsRef = db.collection("ratings");
         ratingsRef.whereEqualTo("recipeId", recipeId)
                 .get()
                 .addOnCompleteListener(task -> {
+                    progressDialog.dismiss();
                     if (task.isSuccessful()) {
-                        List<Rating> ratings = new ArrayList<>();
-                        QuerySnapshot querySnapshot = task.getResult();
-                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            for (Rating rating : querySnapshot.toObjects(Rating.class)) {
-                                ratings.add(rating);
-                            }
-                            ratingAdapter = new RatingAdapter(ratings);
-                            recyclerView.setAdapter(ratingAdapter);
-                        } else {
-                            showNoRatingsMessage();
-                        }
-                        progressDialog.dismiss();
+                        handleRatingsResult(task.getResult());
                     } else {
-                        progressDialog.dismiss();
                         DialogUtils.showErrorToast(RatingActivity.this, "Error getting ratings");
                     }
                 });
     }
+
+    private void handleRatingsResult(QuerySnapshot querySnapshot) {
+        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+            List<Rating> ratings = querySnapshot.toObjects(Rating.class);
+            showRatings(ratings);
+        } else {
+            showNoRatingsMessage();
+        }
+    }
+
+    private void showRatings(List<Rating> ratings) {
+        ratingAdapter = new RatingAdapter(ratings);
+        recyclerView.setAdapter(ratingAdapter);
+    }
+
     private void showNoRatingsMessage() {
         textHeader.setText("Chưa có đánh giá");
     }

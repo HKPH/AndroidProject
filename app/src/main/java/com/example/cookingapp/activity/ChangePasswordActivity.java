@@ -3,8 +3,10 @@ package com.example.cookingapp.activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,10 +26,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText editTextConfirmPassword;
     private Button buttonChangePassword;
     private FirebaseAuth mAuth;
+    private ImageButton buttonBack;
+
 
     private static final String ERROR_EMPTY_FIELDS = "Vui lòng nhập đầy đủ thông tin";
     private static final String ERROR_PASSWORD_MISMATCH = "Mật khẩu xác nhận không khớp";
     private static final String SUCCESS_PASSWORD_CHANGED = "Mật khẩu đã được thay đổi";
+    private static final String ERROR_PASSWORD_MATCH = "Mật khẩu trùng với mật khẩu cũ";
+
+
     private static final String ERROR_PASSWORD_CHANGE_FAILED = "Thay đổi mật khẩu thất bại";
     private static final String ERROR_USER_NOT_FOUND = "Không tìm thấy người dùng hiện tại";
 
@@ -41,12 +48,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         initializeViews();
         initializeFirebase();
+        setupClickListeners();
 
-        buttonChangePassword.setOnClickListener(v ->
-        {
-            progressDialog.show();
-            changePassword();
-        });
+
     }
 
     private void initializeViews() {
@@ -55,12 +59,21 @@ public class ChangePasswordActivity extends AppCompatActivity {
         editTextNewPassword = findViewById(R.id.edit_text_new_password);
         editTextConfirmPassword = findViewById(R.id.edit_text_confirm_password);
         buttonChangePassword = findViewById(R.id.button_change_password);
+        buttonBack = findViewById(R.id.button_back);
     }
 
     private void initializeFirebase() {
         mAuth = FirebaseAuth.getInstance();
     }
+    private void setupClickListeners(){
+        buttonChangePassword.setOnClickListener(v ->
+        {
+            progressDialog.show();
+            changePassword();
+        });
+        buttonBack.setOnClickListener(v -> onBackPressed());
 
+    }
     private void changePassword() {
         String oldPassword = editTextOldPassword.getText().toString().trim();
         String newPassword = editTextNewPassword.getText().toString().trim();
@@ -73,6 +86,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         if (!newPassword.equals(confirmPassword)) {
             DialogUtils.showErrorToast(this, ERROR_PASSWORD_MISMATCH);
+            return;
+        }
+        if (!newPassword.equals(oldPassword)) {
+            DialogUtils.showErrorToast(this, ERROR_PASSWORD_MATCH);
             return;
         }
 

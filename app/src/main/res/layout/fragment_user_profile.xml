@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- ImageView để chỉnh sửa hồ sơ -->
     <RelativeLayout
         android:id="@+id/image_edit_profile_layout"
         android:layout_width="match_parent"
@@ -21,15 +20,13 @@
             android:src="@drawable/baseline_edit_24"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="16dp"/>
+            android:layout_margin="20dp"/>
     </RelativeLayout>
 
-    <!-- Phần hồ sơ -->
     <RelativeLayout
         android:id="@+id/image_and_name"
         android:layout_width="match_parent"
-        android:layout_height="349dp"
+        android:layout_height="300dp"
         android:layout_below="@id/image_edit_profile_layout">
         <LinearLayout
             android:layout_width="match_parent"
@@ -69,7 +66,6 @@
         android:layout_marginEnd="10dp"
         android:layout_below="@id/image_and_name">
 
-        <!-- Email LinearLayout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -96,7 +92,6 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <!-- Phone LinearLayout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -124,7 +119,6 @@
 
     </LinearLayout>
 
-    <!-- Logout Button -->
     <Button
         android:id="@+id/button_logout"
         android:layout_width="match_parent"

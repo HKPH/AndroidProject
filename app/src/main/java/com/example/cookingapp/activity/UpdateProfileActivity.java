@@ -4,8 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,12 +33,13 @@ public class UpdateProfileActivity extends AppCompatActivity {
     private ImageView imageViewProfile;
     private EditText editTextName;
     private EditText editTextPhone, editTextEmail;
-    private Button buttonUpdateProfile, buttonLogout;
+    private Button buttonUpdateProfile;
     private TextView textViewChangePassword;
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
     private FirebaseFirestore mFirestore;
     private Uri imageUri;
+    private ImageButton backButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,7 +49,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         progressDialog.setMessage("Loading...");
         progressDialog.setCancelable(false);
         initializeViews();
-        setupListeners();
+        setupClickListeners();
         initializeFirebase();
 
         if (mUser != null) {
@@ -61,13 +64,19 @@ public class UpdateProfileActivity extends AppCompatActivity {
         editTextEmail = findViewById(R.id.edit_text_email);
         buttonUpdateProfile = findViewById(R.id.button_update_profile);
         textViewChangePassword = findViewById(R.id.text_view_change_password);
+        backButton = findViewById(R.id.button_back);
     }
 
-    private void setupListeners() {
-
+    private void setupClickListeners() {
         buttonUpdateProfile.setOnClickListener(v -> updateProfile());
         textViewChangePassword.setOnClickListener(v -> navigateToChangePassword());
         imageViewProfile.setOnClickListener(v -> selectImage());
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 
     private void initializeFirebase() {
@@ -127,12 +136,11 @@ public class UpdateProfileActivity extends AppCompatActivity {
                 .set(user, SetOptions.merge())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        DialogUtils.showSuccessToast(this, "Cập nhật thông tin thành công");
+//                        DialogUtils.showSuccessToast(this, "Cập nhật thông tin thành công");
                     } else {
-                        DialogUtils.showErrorToast(this, "Lỗi khi cập nhật thông tin");
+//                        DialogUtils.showErrorToast(this, "Lỗi khi cập nhật thông tin");
                     }
                 });
-        progressDialog.dismiss();
     }
 
     private void navigateToChangePassword() {
@@ -166,10 +174,10 @@ public class UpdateProfileActivity extends AppCompatActivity {
                                 .update("photo", imageUrl)
                                 .addOnSuccessListener(aVoid -> {
                                     Glide.with(this).load(imageUrl).into(imageViewProfile);
-                                    DialogUtils.showSuccessToast(this, "Tải ảnh lên thành công");
+                                    progressDialog.dismiss();
+
                                 })
                                 .addOnFailureListener(e -> {
-                                    DialogUtils.showErrorToast(this, "Lỗi khi tải ảnh lên");
                                 });
                     });
                 })
