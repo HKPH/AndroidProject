@@ -203,7 +203,7 @@ public class RecipeUpdateActivity extends AppCompatActivity {
         FirebaseUtil.getAdminTokens()
                 .addOnSuccessListener(adminTokens -> {
                     for (String adminToken : adminTokens) {
-                        NotificationUtil.sendNotification("admin", "Có người người đã cập nhật công thức", adminToken);
+                        NotificationUtil.sendNotification("admin", "Có người đã cập nhật công thức", adminToken);
                     }
                 })
                 .addOnFailureListener(e -> DialogUtils.showErrorToast(this, ""));

@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:gravity="center"
     android:padding="16dp"
     android:theme="@style/Theme.CookingApp2">
     <FrameLayout
@@ -40,7 +39,7 @@
             android:id="@+id/image_view_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/circular_bg"
+            android:background="@drawable/rounded_bg"
             android:backgroundTint="@color/primary"
             android:scaleType="centerCrop"
             android:src="@drawable/default_profile_image"

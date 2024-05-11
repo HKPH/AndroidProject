@@ -43,7 +43,7 @@ public class RecipeListFragment extends Fragment {
         initializeViews(view);
         setupRecyclerView();
         setupSearchView(view);
-        loadRecipesFromFirestore();
+        loadRecipes();
         setOnRecipeItemClickListener();
 
         return view;
@@ -78,7 +78,7 @@ public class RecipeListFragment extends Fragment {
         });
     }
 
-    private void loadRecipesFromFirestore() {
+    private void loadRecipes() {
         db = FirebaseFirestore.getInstance();
         db.collection("recipes")
                 .whereEqualTo("approve", true)
@@ -112,5 +112,10 @@ public class RecipeListFragment extends Fragment {
             }
         }
         adapter.filterList(filteredList);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadRecipes();
     }
 }

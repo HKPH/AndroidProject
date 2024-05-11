@@ -26,9 +26,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading...");
-        progressDialog.setCancelable(false);
         editTextEmail = findViewById(R.id.edit_text_email);
         buttonResetPassword = findViewById(R.id.button_reset_password);
     }
@@ -43,11 +40,10 @@ public class ResetPasswordActivity extends AppCompatActivity {
             return;
         }
 
-        progressDialog.show();
+
 
         FirebaseAuth.getInstance().sendPasswordResetEmail(emailAddress)
                 .addOnCompleteListener(task -> {
-                    progressDialog.dismiss();
                     if (task.isSuccessful()) {
                         DialogUtils.showSuccessToast(ResetPasswordActivity.this, "Đã gửi email đặt lại mật khẩu");
                     } else {

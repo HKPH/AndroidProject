@@ -114,4 +114,9 @@ public class UserProfileFragment extends Fragment {
         startActivity(intent);
         getActivity().finish();
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadUserData();
+    }
 }

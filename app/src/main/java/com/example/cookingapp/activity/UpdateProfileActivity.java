@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.cookingapp.R;
 import com.example.cookingapp.utils.DialogUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -101,7 +103,10 @@ public class UpdateProfileActivity extends AppCompatActivity {
                             editTextEmail.setText(email);
                             editTextPhone.setText(phone);
                             if (photoUrl != null && !photoUrl.isEmpty()) {
-                                Glide.with(this).load(photoUrl).into(imageViewProfile);
+                                Glide.with(this)
+                                        .load(photoUrl)
+                                        .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+                                        .into(imageViewProfile);
                             }
                         } else {
                             DialogUtils.showErrorToast(this, "Không tìm thấy thông tin người dùng");
@@ -173,7 +178,10 @@ public class UpdateProfileActivity extends AppCompatActivity {
                         mFirestore.collection("users").document(mUser.getUid())
                                 .update("photo", imageUrl)
                                 .addOnSuccessListener(aVoid -> {
-                                    Glide.with(this).load(imageUrl).into(imageViewProfile);
+                                    Glide.with(this)
+                                            .load(imageUrl)
+                                            .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+                                            .into(imageViewProfile);
                                     progressDialog.dismiss();
 
                                 })
